@@ -1,0 +1,116 @@
+.camera-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+/* Мобильные пропорции видоискателя */
+.camera-container {
+  width: 380px;
+  max-width: 92vw;
+  height: 640px;
+  max-height: 90vh;
+  background: #ffffff;
+  border: 2.5px solid #0091ff;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 20px 30px rgba(0, 0, 0, 0.2);
+}
+
+.camera-header {
+  padding: 8px 12px;
+  background: #ffffff;
+}
+
+.camera-label {
+  font-family: sans-serif;
+  font-size: 14px;
+  color: #0091ff;
+  font-weight: 500;
+}
+
+/* Область превью */
+.camera-viewport {
+  flex: 1;
+  background: #0f172a;
+  position: relative;
+  overflow: hidden;
+}
+
+.camera-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Панель кнопок */
+.camera-toolbar {
+  height: 100px;
+  background: #ffffff;
+  border-top: 1.5px solid #d1d5db;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding: 0 16px;
+}
+
+.camera-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+/* Кнопка "Плюс" */
+.btn-plus {
+  color: #64748b;
+  transition: color 0.2s;
+}
+.btn-plus:hover {
+  color: #0f172a;
+}
+
+/* Кнопка затвора */
+.btn-shutter {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  border: 3px solid #cbd5e1;
+  padding: 3px;
+  transition: transform 0.1s, border-color 0.2s;
+}
+.btn-shutter:active {
+  transform: scale(0.95);
+}
+.shutter-inner {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: transparent;
+  transition: background-color 0.2s;
+}
+.btn-shutter:hover .shutter-inner {
+  background: #e2e8f0;
+}
+
+/* Кнопка "Назад" */
+.btn-back {
+  color: #64748b;
+  transition: color 0.2s;
+}
+.btn-back:hover {
+  color: #0f172a;
+}
