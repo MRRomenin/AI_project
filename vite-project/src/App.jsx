@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect  } from 'react';
 import Header from './components/Header';
 import Sidebar from './components/Sidebar';
 import Canvas from './components/Canvas';
@@ -27,33 +27,34 @@ export default function App() {
 }
 
 
-//заменить этот метод на sendImagetoServer
-const downloadFile = (file) => {
+const sendImagetoServer = (file) => {
   if (!file) return;
 
-  // 1. Создаем локальную временную ссылку на объект File в памяти браузера
-  const downloadUrl = URL.createObjectURL(file);
+  const formData = new FormData();
+  formData.append("file", file);
 
-  // 2. Создаем виртуальный элемент <a>
-  const link = document.createElement("a");
-  link.href = downloadUrl;
-  link.download = file.name || "camera_shot.png"; // Имя файла при скачивании
-  // дальше идет backend
-  // 3. Эмулируем клик для запуска скачивания
-  document.body.appendChild(link);
-  console.log(link)
-  link.click();
+  const requestOptions = {
+    method: "POST",
+    body: formData,
+  };
 
-  // 4. Очищаем DOM и освобождаем память
-  document.body.removeChild(link);
-  URL.revokeObjectURL(downloadUrl);
+  fetch("/api/upload", requestOptions)
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`Ошибка сервера: ${response.status}`);
+      }
+      return response.json();
+    })
+    .then((data) => console.log("Успешный ответ от FastAPI:", data))
+    .catch((error) => console.error("Ошибка при отправке:", error));
+
 };
 
 const handleCameraCapture = (file) => {
   
     setSelectedFile(file);
     console.log(file);
-    downloadFile(file);
+    sendImagetoServer(file);
     setStatus('Снимок с камеры успешно получен!');
   };
 
@@ -93,6 +94,5 @@ const handleCameraCapture = (file) => {
       <Footer status={status} />
     </div>
   );
-
-  
+ 
 }
