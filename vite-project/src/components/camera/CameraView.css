@@ -14,9 +14,9 @@
 
 /* Мобильные пропорции видоискателя */
 .camera-container {
-  width: 380px;
-  max-width: 92vw;
-  height: 640px;
+  width: 1280px;
+  max-width: 720px;
+  height: auto;
   max-height: 90vh;
   background: #ffffff;
   border: 2.5px solid #0091ff;

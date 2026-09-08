@@ -1,7 +1,7 @@
 import React, { useState, useEffect  } from 'react';
 import Header from './components/Header';
 import Sidebar from './components/Sidebar';
-import Canvas from './components/Canvas';
+import CanvasView from './components/Canvas';
 import Footer from './components/Footer';
 import './App.css';
 
@@ -89,7 +89,7 @@ const handleCameraCapture = (file) => {
           onUndo={handleUndo}
           isLoading={isLoading}
         />
-        <Canvas />
+        <CanvasView imageFile={selectedFile}/>
       </div>
       <Footer status={status} />
     </div>
