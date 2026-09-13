@@ -1,28 +1,21 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import CameraView from './camera/CameraView';
 
 export default function CameraContainer({ onCameraCapture }) {
   const [isCameraOpen, setIsCameraOpen] = useState(false);
   const videoRef = useRef(null);
-  const streamRef = useRef(null); // Для хранения и остановки видеопотока
+  const streamRef = useRef(null);
 
-  // 1. Включение камеры
+  // 1. Включение камеры (только запуск стрима и открытие окна)
   const handleOpenCamera = async () => {
     try {
-      setIsCameraOpen(true);
-      
-      // Запрашиваем доступ к камере
       const stream = await navigator.mediaDevices.getUserMedia({
         video: { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode: 'user' },
         audio: false
       });
 
       streamRef.current = stream;
-
-      // Связываем поток с тегом <video> из CameraView
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-      }
+      setIsCameraOpen(true);
     } catch (err) {
       console.error('Ошибка доступа к камере:', err);
       alert('Не удалось получить доступ к камере');
@@ -30,22 +23,28 @@ export default function CameraContainer({ onCameraCapture }) {
     }
   };
 
-  // 2. Отключение камеры
+  // 2. Связываем поток с <video> ПОСЛЕ того, как CameraView отобразится в DOM
+  useEffect(() => {
+    if (isCameraOpen && videoRef.current && streamRef.current) {
+      videoRef.current.srcObject = streamRef.current;
+    }
+  }, [isCameraOpen]);
+
+  // 3. Отключение камеры
   const handleCloseCamera = () => {
     if (streamRef.current) {
-      // Обязательно останавливаем все треки, чтобы погас индикатор камеры
       streamRef.current.getTracks().forEach(track => track.stop());
       streamRef.current = null;
     }
     setIsCameraOpen(false);
   };
 
-  // 3. Захват кадра (Снимок)
+  // 4. Захват кадра и передача файла на главный Canvas через onCameraCapture
   const handleCapture = () => {
     const video = videoRef.current;
-    if (!video) return;
+    if (!video || !video.videoWidth) return;
 
-    // Создаем виртуальный Canvas для отрисовки текущего кадра
+    // Создаем виртуальный холст для снятия текущего кадра
     const canvas = document.createElement('canvas');
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
@@ -53,12 +52,12 @@ export default function CameraContainer({ onCameraCapture }) {
     const ctx = canvas.getContext('2d');
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-    // Конвертируем кадр в готовый File (PNG)
+    // Конвертируем в File и отправляем на главный холст
     canvas.toBlob((blob) => {
       if (blob) {
         const file = new File([blob], 'camera_shot.png', { type: 'image/png' });
-        onCameraCapture(file); // Передаем File в App.jsx
-        handleCloseCamera();   // Закрываем камеру
+        onCameraCapture(file); // Передаем File в родительский компонент
+        handleCloseCamera();   // Закрываем модалку камеры
       }
     }, 'image/png');
   };
