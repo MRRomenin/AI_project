@@ -1,9 +1,10 @@
-import React, { useState, useEffect  } from 'react';
+import React, { useState, useEffect, useRef  } from 'react';
 import Header from './components/Header';
 import Sidebar from './components/Sidebar';
 import CanvasView from './components/Canvas';
 import Footer from './components/Footer';
 import './App.css';
+import { resizeImageFile } from './utils/imageUtils';
 
 export default function App() {
   const [mode, setMode] = useState('bg');
@@ -12,19 +13,39 @@ export default function App() {
   const [isLoading, setIsLoading] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
 
+  const fileInputRef = useRef(null);
+
   const handleImageSelect = () => {
-    alert('Выбор файла изображения');
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
+  };
+  const handleFileChange = async (event) => {
+    const file = event.target.files[0];
+    try {
+      setStatus('Сжатие изображения...');
+      
+      // Уменьшаем изображение (например, максимум до 1280x720)
+      const resizedFile = await resizeImageFile(file, 1280, 520, 0.85);
+
+      setSelectedFile(resizedFile);      // Передаем уменьшенный файл в CanvasView
+      sendImagetoServer(resizedFile);     // Отправляем легкий файл на FastAPI
+      setStatus(`Загружен файл: ${resizedFile.name} (${Math.round(resizedFile.size / 1024)} KB)`);
+    } catch (error) {
+      console.error('Ошибка при изменении размера:', error);
+      setStatus('Ошибка обработки изображения.');
+    }
   };
 
-  const toDataURL = async (url) => {
-  return fetch(url)
-    .then((response) => {
-      return response.blob();
-    })
-    .then((blob) => {
-      return URL.createObjectURL(blob);
-    });
-}
+//   const toDataURL = async (url) => {
+//   return fetch(url)
+//     .then((response) => {
+//       return response.blob();
+//     })
+//     .then((blob) => {
+//       return URL.createObjectURL(blob);
+//     });
+// }
 
 
 const sendImagetoServer = (file) => {
@@ -77,6 +98,13 @@ const handleCameraCapture = (file) => {
   return (
     <div className="editor-container">
       <Header />
+      <input 
+        type="file" 
+        ref={fileInputRef} 
+        onChange={handleFileChange} 
+        accept="image/png, image/jpeg, image/webp" 
+        style={{ display: 'none' }} 
+      />
       <div className="editor-body">
         <Sidebar 
         onCameraCapture={handleCameraCapture}
